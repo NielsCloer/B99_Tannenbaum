@@ -2,74 +2,29 @@ import java.util.Scanner;
 
 public class Tannenbaum {
     public static void main(String[] args) {
-        // call for user input on Size of Christmas Tree
         System.out.println("Tannenbaumprogramm");
         System.out.println("==================");
         System.out.print("Anzahl Äste? ");
         Scanner in = new Scanner(System.in);
         int dimensions = in.nextInt();
-        // use input to inform segment and primary Array Sizes
         in.close();
         final int overhang = 2;
-        int dimensionsOverhangVar = dimensions + overhang;
-        int arrayHeight = (((dimensionsOverhangVar) * dimensions) + dimensions);
+        int arrayHeight = (((dimensions + overhang) * dimensions) + dimensions);
         int arrayWidth = ((dimensions * dimensions) + 2);
-        // call methods to populate array Segments
-        char[][] branch = generateBranch(dimensionsOverhangVar);
-        char[][] spacer = generateSpacer(dimensionsOverhangVar, dimensions);
+        char[][] branch = generateBranch(dimensions, overhang);
+        char[][] spacer = generateSpacer(dimensions, overhang);
         char[][] log = generateLog(dimensions);
-        // define size of primary Array
         char[][] arrayRight = new char[arrayHeight][arrayWidth];
-        // fill in primary Array
-        populateArray(dimensions, dimensionsOverhangVar, arrayHeight, branch, spacer, log, arrayRight);
-        // creates an inverted array to fill in the left side of the tree
+        populateArray(dimensions, overhang, arrayHeight, branch, spacer, log, arrayRight);
         char[][] arrayLeft = arrayInvert(arrayRight);
-
         outputArrays(arrayHeight, arrayWidth, arrayRight, arrayLeft);
     }
 
-    // simple for loop to ouput both arrays
-    private static void outputArrays(int arrayHeight, int arrayWidth, char[][] arrayRight, char[][] arrayLeft) {
-        for (int y = 0; y < arrayHeight; y++) {
-            for (int x = 0; x < ((arrayWidth) * 2); x++) {
-                if (x < arrayWidth) {
-                    System.out.print(arrayLeft[y][x]);
-                } else if (arrayRight[y][x - arrayWidth] != '\0') {
-                    System.out.print(arrayRight[y][x - arrayWidth]);
-                }
-            }
-            System.out.println();
-        }
-    }
-
-    // populate primary Array using class functions, using for loops to jump along x
-    // and y axis according to segment-
-    // sizes informed by input
-    // for loop variable names informed by naming conventions of arms of a Graph,
-    // here and hereafter
-    private static void populateArray(int dimensions, int dimensionsOverhangVar, int arrayHeight, char[][] branch,
-                                      char[][] spacer, char[][] log, char[][] arrayRight) {
-        for (int y = 0; (y * dimensionsOverhangVar) < (arrayHeight - dimensions); y++) {
-            for (int x = 0; x < y; x++) {
-                // as the for loop counts up in steps of one, to vary the position of the
-                // inserted array,
-                // it is adjusted for the sizes of arrays inserted before it
-                insertArray(spacer, arrayRight, y * dimensionsOverhangVar, x * dimensions);
-            }
-            // same procedure as for the spacers
-            insertArray(branch, arrayRight, y * dimensionsOverhangVar, y * dimensions);
-            // log insert is only used once at the bottom of the array
-            insertArray(log, arrayRight, dimensions * dimensionsOverhangVar, 0);
-        }
-    }
-
-    private static char[][] generateBranch(int branchDimensions) {
-        // fills the given array according to the variables of branchDimensions
+    private static char[][] generateBranch(int dimensions, int overhang) {
+        int branchDimensions = dimensions + overhang;
         char[][] branch = new char[branchDimensions][branchDimensions];
         for (int x = 0; x < branchDimensions; x++) {
             for (int y = 0; y < branchDimensions; y++) {
-                // if statement to account for the fact that only half of the array is filled
-                // for branches
                 if (y <= x) {
                     branch[x][y] = '\\';
                 }
@@ -79,8 +34,9 @@ public class Tannenbaum {
         return branch;
     }
 
-    private static char[][] generateSpacer(int spacerHeight, int spacerWidth) {
-        // fills the entire array according to the dimensions of spacers given
+    private static char[][] generateSpacer(int dimensions, int overhang) {
+        int spacerHeight = dimensions + overhang;
+        int spacerWidth = dimensions;
         char[][] spacer = new char[spacerHeight][spacerWidth];
         for (int x = 0; x < spacerHeight; x++) {
             for (int y = 0; y < spacerWidth; y++) {
@@ -91,8 +47,8 @@ public class Tannenbaum {
         return spacer;
     }
 
-    private static char[][] generateLog(int logSize) {
-        // fills the entire array according to the dimensions of log given
+    private static char[][] generateLog(int dimensions) {
+        int logSize = dimensions;
         char[][] log = new char[logSize][logSize];
         for (int x = 0; x < logSize; x++) {
             for (int y = 0; y < logSize; y++) {
@@ -104,7 +60,6 @@ public class Tannenbaum {
     }
 
     private static void insertArray(char[][] smallArray, char[][] bigArray, int startingPointY, int startingPointX) {
-        // simple for loop used for array insertion
         for (int y = 0; y < smallArray.length; y++) {
             System.arraycopy(smallArray[y], 0, bigArray[startingPointY + y], startingPointX, smallArray[0].length);
         }
@@ -141,5 +96,30 @@ public class Tannenbaum {
             }
         }
         return outputArray;
+    }
+
+    private static void populateArray(int dimensions, int overhang, int arrayHeight, char[][] branch,
+            char[][] spacer, char[][] log, char[][] arrayRight) {
+        int arrayHeightStep = dimensions + overhang;
+        for (int y = 0; (y * arrayHeightStep) < (arrayHeight - dimensions); y++) {
+            for (int x = 0; x < y; x++) {
+                insertArray(spacer, arrayRight, y * arrayHeightStep, x * dimensions);
+            }
+            insertArray(branch, arrayRight, y * arrayHeightStep, y * dimensions);
+            insertArray(log, arrayRight, dimensions * arrayHeightStep, 0);
+        }
+    }
+
+    private static void outputArrays(int arrayHeight, int arrayWidth, char[][] arrayRight, char[][] arrayLeft) {
+        for (int y = 0; y < arrayHeight; y++) {
+            for (int x = 0; x < ((arrayWidth) * 2); x++) {
+                if (x < arrayWidth) {
+                    System.out.print(arrayLeft[y][x]);
+                } else if (arrayRight[y][x - arrayWidth] != '\0') {
+                    System.out.print(arrayRight[y][x - arrayWidth]);
+                }
+            }
+            System.out.println();
+        }
     }
 }
